@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BESPALIKOV // KIM-1999 EXORCISM TERMINAL</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    
+    /* STEAM DARK + FALLOUT / KIM 1999 RETRO-FUTURISM PALETTE */
+    html, body {
+      background-color: #0b0e14 !important;
+      color: #c7d5e0 !important;
+      font-family: 'Inter', -apple-system, sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      line-height: 1.55;
+    }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    #cosmos-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .content-wrapper { position: relative; z-index: 10; }
+
+    /* STEAM / TERMINAL CONTAINERS */
+    .steam-panel {
+      background: rgba(19, 25, 36, 0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid #2a3f5a;
+      border-radius: 6px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    /* TYRANNY LORE HIGHLIGHT (ЖЕЛТЕНЬКОЕ МИНИМАЛИСТИЧНОЕ ВЫДЕЛЕНИЕ) */
+    .lore-link {
+      color: #fbbf24;
+      border-bottom: 1px dashed rgba(251, 191, 36, 0.6);
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.15s ease;
+      padding: 0 2px;
+      border-radius: 2px;
+    }
+    .lore-link:hover {
+      background-color: rgba(251, 191, 36, 0.18);
+      color: #fde68a;
+      border-bottom-style: solid;
+    }
+
+    /* WARFRAME THE HEX (ROATHE) CRIMSON SHIMMER */
+    @keyframes crimsonShimmer {
+      0% { background-position: 0% 50%; text-shadow: 0 0 8px rgba(239, 68, 68, 0.5); }
+      50% { background-position: 100% 50%; text-shadow: 0 0 16px rgba(220, 38, 38, 0.9); }
+      100% { background-position: 0% 50%; text-shadow: 0 0 8px rgba(239, 68, 68, 0.5); }
+    }
+    .roathe-rep {
+      background: linear-gradient(90deg, #ff4d4d, #fca5a5, #dc2626, #ff4d4d);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: crimsonShimmer 3s linear infinite;
+      font-weight: 800;
+    }
+
+    /* NAVIGATION TABS */
+    .nav-tab {
+      background: #111823;
+      border: 1px solid #23344d;
+      color: #8f98a0;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .nav-tab:hover {
+      border-color: #66c0f4;
+      color: #ffffff;
+    }
+    .nav-tab.active {
+      background: linear-gradient(135deg, #1b2838 0%, #2a475e 100%);
+      border-color: #66c0f4;
+      color: #ffffff;
+      box-shadow: 0 0 15px rgba(102, 192, 244, 0.2);
+    }
+
+    /* TIER CARDS */
+    .tier-card {
+      background: rgba(16, 22, 32, 0.92);
+      border: 1px solid #2a3f5a;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+    .tier-card:hover { border-color: #66c0f4; transform: translateY(-2px); }
+    .tier-card.active {
+      border: 2px solid #66c0f4;
+      background: rgba(23, 34, 51, 0.98);
+      box-shadow: 0 0 25px rgba(102, 192, 244, 0.18);
+    }
+
+    /* DISCO ELYSIUM THOUGHT CABINET ITEMS */
+    .thought-btn {
+      width: 100%;
+      text-align: left;
+      padding: 12px 14px;
+      border-left: 3px solid transparent;
+      background: rgba(15, 21, 30, 0.7);
+      border-bottom: 1px solid rgba(42, 63, 90, 0.4);
+      color: #94a3b8;
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+    .thought-btn:hover {
+      background: rgba(30, 42, 62, 0.6);
+      color: #e2e8f0;
+    }
+    .thought-btn.active {
+      border-left-color: #fbbf24;
+      background: rgba(42, 56, 78, 0.75);
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    /* TERMINAL INPUTS */
+    .term-input {
+      background: #080b10;
+      border: 1px solid #2a3f5a;
+      color: #fbbf24;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 10px 14px;
+      border-radius: 4px;
+      width: 100%;
+      outline: none;
+    }
+    .term-input:focus {
+      border-color: #fbbf24;
+      box-shadow: 0 0 12px rgba(251, 191, 36, 0.15);
+    }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0b0e14; }
+    ::-webkit-scrollbar-thumb { background: #2a3f5a; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #66c0f4; }
+  </style>
+</head>
+<body class="min-h-screen selection:bg-amber-400 selection:text-black">
+
+  <canvas id="cosmos-canvas"></canvas>
+
+  <div class="content-wrapper">
+    <!-- TOP KIM-1999 STATUS BAR -->
+    <header class="border-b border-[#2a3f5a] bg-[#0b0e14]/95 backdrop-blur sticky top-0 z-40">
+      <div class="max-w-5xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-2 text-[11px] md:text-xs mono">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+          <span class="text-white font-bold tracking-wider">KIM-OS // BESPALIKOV EXORCISM TERMINAL</span>
+        </div>
+        <div class="flex items-center gap-4 text-slate-400">
+          <span>LOC: TARRAGONA, ES</span>
+          <span class="roathe-rep hidden sm:inline">[ +REP: СУБЪЕКТНОСТЬ АКТИВНА ]</span>
+        </div>
+      </div>
+
+      <!-- ГЛАВНЫЙ ПЕРЕКЛЮЧАТЕЛЬ РЕЖИМОВ (ЧТОБЫ НЕ ПЕРЕГРУЖАТЬ ЛЕНДОС) -->
+      <div class="max-w-5xl mx-auto px-4 pb-3 pt-1 grid grid-cols-3 gap-2 mono text-[11px] md:text-xs">
+        <button onclick="switchTab('tab-landing', this)" class="nav-tab active py-2.5 px-3 rounded font-bold text-center">
+          [01] ТЕРМИНАЛ СДЕЛКИ (ЛЕНДОС)
+        </button>
+        <button onclick="switchTab('tab-cabinet', this)" class="nav-tab py-2.5 px-3 rounded font-bold text-center">
+          [02] ШКАФ МЫСЛЕЙ (АРХИВ БАГОВ)
+        </button>
+        <button onclick="switchTab('tab-qual', this)" class="nav-tab py-2.5 px-3 rounded font-bold text-center">
+          [03] АНКЕТА ОТБОРА (KIM-ЧАТ)
+        </button>
+      </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 py-8 md:py-12">
+
+      <!-- ================================================================= -->
+      <!-- ВКЛАДКА 1: ЧИСТЫЙ КОММЕРЧЕСКИЙ ЛЕНДОС (БЕЗ ПЕРЕГРУЗА ТЕКСТОМ) -->
+      <!-- ================================================================= -->
+      <div id="tab-landing" class="space-y-12">
+
+        <!-- HERO -->
+        <section class="space-y-4">
+          <div class="inline-block border border-amber-500/40 bg-amber-950/30 px-3 py-1 text-xs mono text-amber-300 uppercase rounded">
+            Подсказка: нажимай на <span class="lore-link" onclick="openLore('tyranny_tip')">жёлтые термины</span> для вскрытия досье
+          </div>
+          <h1 class="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight leading-none text-white uppercase">
+            ВЫТАЩИТЬ БИЗНЕС ИЗ БОЛОТА ДО <span class="bg-[#66c0f4] text-black px-2">$10k–$100k/МЕС</span> ЗА 90 ДНЕЙ.
+          </h1>
+          <p class="text-base md:text-lg text-slate-300 max-w-3xl leading-relaxed">
+            Твой бизнес стоит не из-за рынка. Он буксует, потому что за твоим <span class="lore-link" onclick="openLore('crit_factor')">Критическим Фактором</span> сидит вирус <span class="lore-link" onclick="openLore('cowardice')">малодушия</span> и штат внутренних адвокатов. Мы взламываем этот код напрямую, минуя годы бесполезной терапии.
+          </p>
+        </section>
+
+        <!-- ДВА РАУНДА ОТБОРА И ПОЛЕВАЯ СТАТИСТИКА -->
+        <section class="grid md:grid-cols-2 gap-4">
+          <div class="steam-panel p-6 space-y-3">
+            <div class="mono text-xs text-[#66c0f4] font-bold uppercase">// АРХИТЕКТУРА ВХОДА: 2 РАУНДА ОТБОРА</div>
+            <div class="space-y-3 text-sm">
+              <div class="p-3 bg-black/40 border border-white/5 rounded">
+                <div class="mono text-xs text-amber-400 font-bold">РАУНД 1 // КВАЛИФИКАЦИОННЫЙ СОЗВОН (10 МИНУТ)</div>
+                <p class="text-xs text-slate-300 mt-1">
+                  Короткий фильтр. Выясняем твою Точку А, чего ты реально хочешь и почему именно сейчас. Если тебе нужен обычный коуч с соплями — прощаемся на 5-й минуте.
+                </p>
+              </div>
+              <div class="p-3 bg-black/40 border border-white/5 rounded">
+                <div class="mono text-xs text-emerald-400 font-bold">РАУНД 2 // СТРАТЕГИЧЕСКАЯ СЕССИЯ (30 МИНУТ)</div>
+                <p class="text-xs text-slate-300 mt-1">
+                  Раньше она шла час, в храме рекорд был 40 минут, но в армейке я сжал протокол до <strong class="text-white">30 минут чистого снайперского разбора</strong>. Находим корневой баг (<span class="lore-link" onclick="openLore('ise_root')">ISE</span>) и принимаем решение о работе.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="steam-panel p-6 space-y-3">
+            <div class="mono text-xs text-[#66c0f4] font-bold uppercase">// ПОЛЕВАЯ ДОКАЗУХА МЕТОДА</div>
+            <ul class="space-y-2.5 text-xs md:text-sm text-slate-300">
+              <li>
+                <strong class="text-white">Конвейер OnlyFans:</strong> Девочка без опыта за 90 дней пробивает $10,000 чистыми, если не козлит. Взрослого мужика с продуктом довести до десятки или сотки в разы проще.
+              </li>
+              <li>
+                <strong class="text-white">Армейская статистика (7 из 11):</strong> Из 11 человек, с которыми я провел сессии в мясорубке, 6 покинули армию, я вышел 7-м, а двое осознанно решили служить дальше. Первым ушел самый хромой после публичного разбора.
+              </li>
+              <li>
+                <strong class="text-white">Анти-кейс на $60,000/мес:</strong> Фаундер болтался на $60k и хотел $100k. За полчаса на ССке вскрыли двух <span class="lore-link" onclick="openLore('vest_case')">бомжей в его башке (философа и РОПа в вонючей жилетке)</span>, которые ушатали ему отдел продаж.
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- ПРИМЕРЫ РЕАЛЬНЫХ ЗАДАНИЙ ОТ СУЩНОСТЕЙ (ТЕКСТОМ) -->
+        <section class="steam-panel p-6 md:p-8 space-y-4">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
+            <div>
+              <div class="mono text-xs text-[#66c0f4] font-bold uppercase">// ЧТО ТЕБЯ ЖДЕТ В РАБОТЕ: ПРОТОКОЛЫ EDIFICE</div>
+              <h3 class="text-lg font-bold text-white mt-0.5">Задания придумываю не я — их твоим же ртом выписывает твоя адекватная часть сознания:</h3>
+            </div>
+            <span class="mono text-[11px] bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 px-2.5 py-1 rounded shrink-0">
+              УБРАТЬ ЛИШНЕЕ // ДОБАВИТЬ НУЖНОЕ
+            </span>
+          </div>
+
+          <div class="grid md:grid-cols-3 gap-4 text-xs mono">
+            <div class="p-4 bg-[#0b0e14] border border-[#2a3f5a] rounded space-y-2">
+              <div class="text-amber-400 font-bold">[ ПРОТОКОЛ #1: БИОХИМИЯ И РЕСУРС ]</div>
+              <p class="text-slate-300 leading-relaxed">
+                • Срезать фастфуд, готовить себе, максимум растительной пищи, ягод и чистого топлива.<br>
+                • Кардио и бег. Минимум 20 минут в день уходить в лес/на природу без телефона.<br>
+                • Сигнализация тела: волнение = обратить внимание на важное; чешется рука или зевота = маркер сопротивления.
+              </p>
+            </div>
+            <div class="p-4 bg-[#0b0e14] border border-[#2a3f5a] rounded space-y-2">
+              <div class="text-sky-400 font-bold">[ ПРОТОКОЛ #2: ОПЕРАЦИОННАЯ ЗАЧИСТКА ]</div>
+              <p class="text-slate-300 leading-relaxed">
+                • За 48 часов уволить нахлебников, «учеников» в отделе продаж и токсичных партнеров, сосущих кассу.<br>
+                • Отрегулировать действия на неделю, месяц и год.<br>
+                • Перестать переливать кровь из рабочего бизнеса в мертвые стартапы (<span class="lore-link" onclick="openLore('serial_b')">серийное блядство</span>).
+              </p>
+            </div>
+            <div class="p-4 bg-[#0b0e14] border border-[#2a3f5a] rounded space-y-2">
+              <div class="text-purple-400 font-bold">[ ПРОТОКОЛ #3: КОНТАКТ С РЕАЛЬНОСТЬЮ ]</div>
+              <p class="text-slate-300 leading-relaxed">
+                • Собрать рюкзак и уйти в автономный поход в горы для перезагрузки дофамина.<br>
+                • Ежедневно коммуницировать в интернете с сильными созидателями, снимать видео и продвигать продукт.<br>
+                • Заблокировать <span class="lore-link" onclick="openLore('diversion_wife')">бытовых диверсантов</span>.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ТРИ ТРЕКА (3.5K / 10K / РЕТРИТ) -->
+        <section class="space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+            <div>
+              <div class="mono text-xs text-[#66c0f4] font-bold uppercase">// ВЫБЕРИ СВОЙ ТРЕК (2 РАУНДА ОТБОРА НА КАЖДЫЙ)</div>
+              <p class="text-xs text-slate-400 mt-1">На коммерческих треках работает правило: Фикс на старте + 10% десятины с дельты НОВЫХ денег поверх старого потолка.</p>
+            </div>
+          </div>
+
+          <div class="grid md:grid-cols-3 gap-4" id="tier-selector">
+            <!-- ТРЕК 1: $3,500 -->
+            <div class="tier-card p-6 cursor-pointer space-y-4" onclick="selectTier(this, 'ДЕФИБРИЛЛЯЦИЯ // МИКРОБИЗНЕС ($3,500 + 10%)')">
+              <div class="flex justify-between items-center">
+                <span class="mono text-xs text-amber-400 font-bold">[ МИКРОБИЗНЕС // ГЕРОИ ]</span>
+                <span class="mono text-[10px] border border-amber-400/40 text-amber-300 px-1.5 py-0.5 rounded">PUBLIC REALITY</span>
+              </div>
+              <div class="text-3xl font-black text-white mono">$3,500 <span class="text-sm font-normal text-slate-400">+ 10%</span></div>
+              <div class="text-xs font-bold uppercase text-emerald-400 mono">Цель: Пробой $10,000/мес чистыми</div>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                Для тех, кто застрял на $2k–$5k и хочет вырваться на твердую десятку за 90 дней. Сниженный вход ты доплачиваешь публичностью: записываем видеоотзывы, открытые интервью и препарируем твой рост под камерами.
+              </p>
+            </div>
+
+            <!-- ТРЕК 2: $10,000 -->
+            <div class="tier-card active p-6 cursor-pointer space-y-4" onclick="selectTier(this, 'ЭКЗОРЦИЗМ МАСШТАБА // ПРОБОЙ СОТКИ ($10,000 + 10%)')">
+              <div class="flex justify-between items-center">
+                <span class="mono text-xs text-black bg-[#66c0f4] px-2 py-0.5 font-bold rounded">ВЗРОСЛЫЙ БИЗНЕС</span>
+                <span class="mono text-[10px] border border-[#66c0f4]/40 text-[#66c0f4] px-1.5 py-0.5 rounded">100% NDA</span>
+              </div>
+              <div class="text-3xl font-black text-white mono">$10,000 <span class="text-sm font-normal text-slate-400">+ 10%</span></div>
+              <div class="text-xs font-bold uppercase text-emerald-400 mono">Цель: Пробой $100k/мес ($1M+ в год)</div>
+              <p class="text-xs text-slate-200 leading-relaxed">
+                Для фаундеров с оборотом $20k–$70k/мес, которым «Интерпол в окна по ночам заглядывает». Полная секретность. Сносим философов и дармоедов из штата, возвращаем сон и пробиваем миллион долларов годовой чистой прибыли.
+              </p>
+            </div>
+
+            <!-- ТРЕК 3: РЕТРИТ ПО СЕБЕСТОИМОСТИ -->
+            <div class="tier-card p-6 cursor-pointer space-y-4" onclick="selectTier(this, 'ЛИЧНЫЙ РЕТРИТ В ИСПАНИИ (ПО СЕБЕСТОИМОСТИ // ВОЛОНТЕРСТВО)')">
+              <div class="flex justify-between items-center">
+                <span class="mono text-xs text-purple-400 font-bold">ВОЛОНТЕРСТВО // VIP</span>
+                <span class="mono text-[10px] border border-purple-400/40 text-purple-300 px-1.5 py-0.5 rounded">TARRAGONA, ES</span>
+              </div>
+              <div class="text-2xl font-black text-white mono">COST ONLY <span class="text-xs font-normal text-slate-400">// БЕЗ ЦЕНЫ</span></div>
+              <div class="text-xs font-bold uppercase text-purple-300 mono">Инструкции к жизни и Высшие Смыслы</div>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                У этого трека нет коммерческого ценника — я провожу его по себестоимости. Ты оплачиваешь только реальные косты: аренду виллы в Испании, трансферы и личного повара. Десятины нет (благодарность строго по желанию).
+              </p>
+              <button onclick="event.stopPropagation(); openLore('retreat_gate')" class="w-full py-1.5 border border-purple-400/50 bg-purple-950/30 text-purple-200 mono text-[10px] uppercase hover:bg-purple-400 hover:text-black font-bold rounded transition-all">
+                [ ПРОЙТИ ПРОВЕРКУ ДОПУСКА К РЕТРИТУ ↗ ]
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ЖИВЫЕ СКРИНЫ (КОМПАКТНАЯ СЕТКА) -->
+        <section class="space-y-3">
+          <div class="mono text-xs text-[#66c0f4] font-bold uppercase">// ЖИВЫЕ ЛОГИ ИЗ ЛИЧКИ (КЛИКНИ ДЛЯ ЗУМА)</div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="steam-panel p-2.5 cursor-zoom-in hover:border-[#66c0f4] transition-all" onclick="openImageModal('screen1.png')">
+              <div class="mono text-[10px] text-amber-400 font-bold mb-1">01 // ФИЗТЕХ (1/4 ЯРДА)</div>
+              <img src="screen1.png" alt="Физтех" class="w-full h-36 object-cover rounded" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+              <div style="display:none" class="text-[11px] text-slate-300 mono p-2 bg-black/50 rounded">«Насорсил на четверть ярда, менеджу 10 дсеров. Бро, мне НАДО нарастить субъектность, не быть мулом...»</div>
+            </div>
+            <div class="steam-panel p-2.5 cursor-zoom-in hover:border-[#66c0f4] transition-all" onclick="openImageModal('screen4.png')">
+              <div class="mono text-[10px] text-emerald-400 font-bold mb-1">02 // ЭРНСТ, МАКАН, БЕРИ ЗАРЯД</div>
+              <img src="screen4.png" alt="Результаты за неделю" class="w-full h-36 object-cover rounded" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+              <div style="display:none" class="text-[11px] text-slate-300 mono p-2 bg-black/50 rounded">«За 1 неделю постоял и пожал руки самым выдающимся Созидателям: Эрнсту, Макану, основателю Бери Заряд!»</div>
+            </div>
+            <div class="steam-panel p-2.5 cursor-zoom-in hover:border-[#66c0f4] transition-all" onclick="openImageModal('screen2.png')">
+              <div class="mono text-[10px] text-sky-400 font-bold mb-1">03 // КВЕСТ С КРИПТОЙ ($10 ТЕСТ)</div>
+              <img src="screen2.png" alt="Крипта тест" class="w-full h-36 object-cover rounded" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+              <div style="display:none" class="text-[11px] text-slate-300 mono p-2 bg-black/50 rounded">«Кину тебе 10 баксов сам чтобы затестились... Узнаю у братанов, кто может без мозгоебства отправить крипту»</div>
+            </div>
+            <div class="steam-panel p-2.5 cursor-zoom-in hover:border-[#66c0f4] transition-all" onclick="openImageModal('screen5.png')">
+              <div class="mono text-[10px] text-purple-400 font-bold mb-1">04 // «ВСЕ ДЕНЬГИ МИРА»</div>
+              <img src="screen5.png" alt="Отзыв" class="w-full h-36 object-cover rounded" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+              <div style="display:none" class="text-[11px] text-slate-300 mono p-2 bg-black/50 rounded">«СПАСИБО что ты абхуесосил всю мою жизнь тогда! Я переведу тебе сука все деньги мира!»</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- БЫСТРЫЙ ШЛЮЗ В РАУНД 1 ИЛИ В АНКЕТУ -->
+        <section class="steam-panel p-6 md:p-8 border-[#66c0f4]/50 space-y-5">
+          <div class="flex flex-col md:flex-row justify-between md:items-center gap-2">
+            <div>
+              <div class="mono text-xs text-[#66c0f4] font-bold uppercase">// ЗАПУСК ПРОТОКОЛА ОТБОРА (РАУНД 1)</div>
+              <p class="text-xs text-slate-300 mt-0.5">Подтверди базовые правила договора или заполни текстовую анкету во вкладке [03].</p>
+            </div>
+            <div id="selected-tier-badge" class="text-xs mono bg-[#66c0f4] text-black px-3 py-1 font-bold rounded">
+              ВЫБРАНО: ЭКЗОРЦИЗМ МАСШТАБА // ПРОБОЙ СОТКИ ($10,000 + 10%)
+            </div>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-3 text-xs md:text-sm" id="filter-checks">
+            <label class="flex items-start gap-2.5 cursor-pointer select-none p-3 bg-black/30 rounded border border-white/5">
+              <input type="checkbox" class="mt-1 accent-[#66c0f4] check-item">
+              <span>Готов пройти 2 раунда отбора (10 мин Квал + 30 мин Стратегическая сессия) и дать <span class="lore-link" onclick="event.preventDefault(); openLore('admin_access')">Права Администратора</span>.</span>
+            </label>
+            <label class="flex items-start gap-2.5 cursor-pointer select-none p-3 bg-black/30 rounded border border-white/5">
+              <input type="checkbox" class="mt-1 accent-[#66c0f4] check-item">
+              <span>Подтверждаю Расписку (Приложение №2): не состою на учете в психдиспансере и более 3 месяцев не сижу на психотропах.</span>
+            </label>
+            <label class="flex items-start gap-2.5 cursor-pointer select-none p-3 bg-black/30 rounded border border-white/5">
+              <input type="checkbox" class="mt-1 accent-[#66c0f4] check-item">
+              <span>Принимаю финансовую модель выбранного трека и готов резать балласт в первую же неделю.</span>
+            </label>
+            <label class="flex items-start gap-2.5 cursor-pointer select-none p-3 bg-black/30 rounded border border-white/5">
+              <input type="checkbox" class="mt-1 accent-[#66c0f4] check-item">
+              <span>Понимаю п. 6.1 Договора: за крысятничество результата — двукратный откат к исходному болоту и снятие NDA.</span>
+            </label>
+          </div>
+
+          <div class="flex flex-col sm:flex-row gap-3 pt-2">
+            <a id="tg-btn" href="https://t.me/alexander_bespalikov" target="_blank" class="flex-1 text-center py-4 px-6 mono font-bold text-xs md:text-sm uppercase tracking-wider border border-white/10 bg-slate-900/90 text-slate-500 pointer-events-none transition-all rounded">
+              [ ОТМЕТЬ 4 ПУНКТА ВЫШЕ ДЛЯ ЗАПИСИ НА РАУНД 1 В TELEGRAM ]
+            </a>
+            <button onclick="switchTab('tab-qual', document.querySelectorAll('.nav-tab')[2])" class="py-4 px-5 mono text-xs font-bold uppercase border border-amber-400/50 text-amber-300 hover:bg-amber-400 hover:text-black transition-all rounded shrink-0">
+              [ ИЛИ ЗАПОЛНИТЬ KIM-АНКЕТУ ↗ ]
+            </button>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- ================================================================= -->
+      <!-- ВКЛАДКА 2: THOUGHT CABINET (DISCO ELYSIUM ШКАФ МЫСЛЕЙ И БАГОВ)   -->
+      <!-- ================================================================= -->
+      <div id="tab-cabinet" class="hidden space-y-6">
+        <div class="steam-panel p-6 space-y-2">
+          <div class="mono text-xs text-amber-400 font-bold uppercase">// DISCO ELYSIUM ARCHIVE // ШКАФ МЫСЛЕЙ И ДЕКОНСТРУКЦИИ СОЗНАНИЯ</div>
+          <p class="text-xs md:text-sm text-slate-300">
+            Сюда вынесена вся тяжелая артиллерия: как устроено подсознание, почему обнимашки банкротов в интернете ведут к суициду, 4 экзистенциальных страха миллионеров и 9 хобби-убийц. Выбирай файл слева для чтения.
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-12 gap-6 items-start">
+          <!-- ЛЕВАЯ КОЛОНКА: СПИСОК МЫСЛЕЙ / ВИРУСОВ -->
+          <div class="md:col-span-5 steam-panel overflow-hidden">
+            <div class="p-3 bg-black/50 border-b border-[#2a3f5a] mono text-[11px] text-[#66c0f4] font-bold uppercase">
+              // КАТАЛОГ ОБНАРУЖЕННЫХ ВИРУСОВ (14 ФАЙЛОВ)
+            </div>
+            <div class="divide-y divide-[#2a3f5a]/40 mono text-xs max-h-[65vh] overflow-y-auto" id="cabinet-list">
+              <button class="thought-btn active" onclick="selectThought('th_state', this)">01. Ловушка Состояния (Кейс Zupar & Anton)</button>
+              <button class="thought-btn" onclick="selectThought('th_serial', this)">02. Серийное предпринимательство = Блядство</button>
+              <button class="thought-btn" onclick="selectThought('th_anatomy', this)">03. Архитектура: Критический Фактор и ISE</button>
+              <button class="thought-btn" onclick="selectThought('th_exorcism', this)">04. Настоящая причина зависимостей (МКБ-10)</button>
+              <button class="thought-btn" onclick="selectThought('th_fears', this)">05. Три главных страха: Одиночество, Тюрьма, Безумие</button>
+              <button class="thought-btn" onclick="selectThought('th_religion', this)">06. [Хобби #1] Религия и откуп грехов (Полный текст)</button>
+              <button class="thought-btn" onclick="selectThought('th_esoteric', this)">07. [Хобби #2] Шизотерика: от Секрета до дурки</button>
+              <button class="thought-btn" onclick="selectThought('th_drugs', this)">08. [Хобби #3] Наркотики и дофаминовый кредит</button>
+              <button class="thought-btn" onclick="selectThought('th_alcohol', this)">09. [Хобби #4] Ночной алкоголизм: напиток рабов</button>
+              <button class="thought-btn" onclick="selectThought('th_extreme', this)">10. [Хобби #5] Экстрим как программа суицида</button>
+              <button class="thought-btn" onclick="selectThought('th_sport', this)">11. [Хобби #6] Спорт на убой и качалка</button>
+              <button class="thought-btn" onclick="selectThought('th_philo', this)">12. [Хобби #7] Пустая философия (Хайдеггер и Сартр)</button>
+              <button class="thought-btn" onclick="selectThought('th_sex', this)">13. [Хобби #8] Секс-эксперименты и детские травмы</button>
+              <button class="thought-btn" onclick="selectThought('th_house', this)">14. [Хобби #9] Стройка дома = Лудомания</button>
+            </div>
+          </div>
+
+          <!-- ПРАВАЯ КОЛОНКА: ТЕРМИНАЛ ЧТЕНИЯ МЫСЛИ -->
+          <div class="md:col-span-7 steam-panel p-6 md:p-8 space-y-4 min-h-[480px]">
+            <div class="border-b border-[#2a3f5a] pb-4">
+              <div class="mono text-[10px] text-amber-400 uppercase" id="cab-tag">// THOUGHT CABINET FILE #01</div>
+              <h2 class="text-xl md:text-2xl font-black text-white mt-1" id="cab-title">Заголовок мысли</h2>
+            </div>
+            <div id="cab-body" class="space-y-4 text-sm md:text-base text-slate-200 leading-relaxed max-h-[60vh] overflow-y-auto pr-2">
+              <!-- Заполняется скриптом -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================================================================= -->
+      <!-- ВКЛАДКА 3: ТЕКСТОВАЯ АНКЕТА ОТБОРА В СТИЛЕ TWOREC / KIM-1999      -->
+      <!-- ================================================================= -->
+      <div id="tab-qual" class="hidden space-y-6">
+        <div class="steam-panel p-6 md:p-8 space-y-6 border-amber-500/40">
+          <div class="border-b border-[#2a3f5a] pb-4 flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+            <div>
+              <div class="mono text-xs text-amber-400 font-bold uppercase">// KIM-1999 DIRECT TERMINAL // ПРЕДВАРИТЕЛЬНАЯ КВАЛИФИКАЦИЯ</div>
+              <h2 class="text-xl font-black text-white mt-1">ТЕКСТОВЫЙ ПРОТОКОЛ ДОПУСКА К РАУНДУ 1 (10 МИНУТ)</h2>
+            </div>
+            <span class="roathe-rep mono text-xs">[ ROATHE LINK: ONLINE ]</span>
+          </div>
+
+          <div class="space-y-5 mono text-xs md:text-sm">
+            <div class="space-y-2">
+              <label class="block text-slate-300 font-bold">&gt; 01. Твое имя и ссылка на соцсеть / проект (чтобы я понимал, с кем говорю):</label>
+              <input type="text" id="q-name" class="term-input" placeholder="Например: Андрей, логистическая компания, @username">
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4">
+              <div class="space-y-2">
+                <label class="block text-slate-300 font-bold">&gt; 02. Текущий чистый доход в месяц (Точка А):</label>
+                <input type="text" id="q-point-a" class="term-input" placeholder="Например: Болтаюсь на $4,000 / $60,000">
+              </div>
+              <div class="space-y-2">
+                <label class="block text-slate-300 font-bold">&gt; 03. Какую планку нужно пробить за 90 дней (Точка Б):</label>
+                <input type="text" id="q-point-b" class="term-input" placeholder="Например: $10,000 / $100,000 чистыми">
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <label class="block text-slate-300 font-bold">&gt; 04. Выбери целевой трек:</label>
+              <select id="q-track" class="term-input">
+                <option value="ДЕФИБРИЛЛЯЦИЯ ($3,500 + 10% // Публично до $10k)">ОПЦИЯ I: Дефибрилляция — $3,500 + 10% (Публично под камерами до $10k/мес)</option>
+                <option value="ЭКЗОРЦИЗМ МАСШТАБА ($10,000 + 10% // Анонимно до $100k)" selected>ОПЦИЯ II: Экзорцизм Масштаба — $10,000 + 10% (100% NDA, пробой $100k/мес)</option>
+                <option value="ЛИЧНЫЙ РЕТРИТ В ИСПАНИИ (По себестоимости // Волонтерство)">ОПЦИЯ III: Личный Ретрит в Испании (По себестоимости: вилла, повар, смыслы)</option>
+              </select>
+            </div>
+
+            <div class="space-y-2">
+              <label class="block text-slate-300 font-bold">&gt; 05. Главный вирус / стопор прямо сейчас (почему еще не в Точке Б?):</label>
+              <textarea id="q-problem" rows="3" class="term-input" placeholder="Например: Не сплю, кормлю дармоедов в отделе продаж, жена выносит мозг, сливаю деньги в стройку дома..."></textarea>
+            </div>
+
+            <div class="space-y-2">
+              <label class="block text-slate-300 font-bold">&gt; 06. Какое из 4 решений разума ты принимаешь перед входом?</label>
+              <select id="q-decision" class="term-input">
+                <option value="100% ПРИНЯТИЕ: Мне нравится, я уверен, это сработает (Права Администратора)">1. «Мне нравится, я уверен, это сработает» (100% права Администратора)</option>
+                <option value="СОМНЕНИЕ: Надеюсь, это сработает">2. «Надеюсь, это сработает» (Позиция сомнения)</option>
+                <option value="ПОПЫТКА: Я попробую">3. «Я попробую» (Ожидание неудачи)</option>
+              </select>
+            </div>
+
+            <div id="roathe-alert" class="p-4 bg-red-950/30 border border-red-500/40 rounded text-xs space-y-1">
+              <div class="roathe-rep text-sm">SYSTEM LOG // ROATHE_1999: +100 К РЕПУТАЦИИ СУБЪЕКТНОСТИ</div>
+              <p class="text-slate-300">При нажатии кнопки ниже терминал скомпилирует твое личное досье и откроет прямую линию с Александром в Telegram для назначения 10-минутного Квал-звонка.</p>
+            </div>
+
+            <button onclick="submitKimForm()" class="w-full py-4 bg-amber-400 hover:bg-amber-300 text-black font-black uppercase tracking-wider rounded transition-all cursor-pointer">
+              &gt;&gt;&gt; СКОМПИЛИРОВАТЬ ДОСЬЕ И ОТПРАВИТЬ В TELEGRAM &lt;&lt;&lt;
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- МОДАЛЬНОЕ ОКНО TYRANNY LORE / МИНИ-ИГРА РЕТРИТА (ЗАКРЫВАЕТСЯ ТАПОМ ВНЕ ОКНА) -->
+  <div id="lore-modal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4" onclick="closeOnBackdrop(event, 'lore-modal')">
+    <div class="steam-panel max-w-xl w-full p-6 md:p-8 space-y-4 border-amber-400/60" onclick="event.stopPropagation()">
+      <div class="flex justify-between items-start border-b border-[#2a3f5a] pb-3 gap-4">
+        <div>
+          <div class="mono text-[10px] text-amber-400 uppercase" id="lore-tag">// TYRANNY CODEX ENTRY</div>
+          <h3 class="text-lg font-black text-white mt-0.5" id="lore-title">Термин</h3>
+        </div>
+        <button onclick="closeModal('lore-modal')" class="mono text-xs border border-white/20 px-2.5 py-1 text-slate-300 hover:bg-amber-400 hover:text-black rounded">
+          [ X ]
+        </button>
+      </div>
+      <div id="lore-body" class="space-y-3 text-sm text-slate-200 leading-relaxed max-h-[70vh] overflow-y-auto"></div>
+      <div class="pt-3 border-t border-[#2a3f5a] flex justify-between items-center text-[11px] mono text-slate-400">
+        <span>Тапни в любое место вне окна, чтобы закрыть</span>
+        <button onclick="closeModal('lore-modal')" class="bg-amber-400 text-black font-bold px-4 py-1.5 rounded uppercase">Закрыть</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- МОДАЛКА ДЛЯ СКРИНШОТОВ -->
+  <div id="img-modal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 cursor-zoom-out" onclick="closeModal('img-modal')">
+    <img id="img-modal-src" src="" alt="Full view" class="max-w-full max-h-[90vh] rounded border border-white/20 shadow-2xl">
+  </div>
+
+  <script>
+    // ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ТЕРМИНАЛА
+    function switchTab(tabId, btnEl) {
+      ['tab-landing', 'tab-cabinet', 'tab-qual'].forEach(id => {
+        document.getElementById(id).classList.add('hidden');
+      });
+      document.getElementById(tabId).classList.remove('hidden');
+      document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+      if (btnEl) btnEl.classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // БАЗА ВСПЛЫВАЮЩИХ ТЕРМИНОВ В СТИЛЕ TYRANNY (ЖЕЛТЫЕ ХОВЕРЫ)
+    const loreEntries = {
+      tyranny_tip: {
+        tag: "// ИНТЕРФЕЙС TYRANNY // МИНИМАЛИЗМ",
+        title: "Как устроен этот терминал",
+        body: `<p>Чтобы ты не тонул в простынях текста на главном экране, все глубинные понятия выделены <span class="text-amber-400 font-bold">жёлтым пунктиром</span>. Нажимаешь — получаешь снайперскую сводку. Хочешь изучить всю теорию целиком — переключайся во вкладку <strong>[02] ШКАФ МЫСЛЕЙ</strong> сверху.</p>`
+      },
+      crit_factor: {
+        tag: "// АРХИТЕКТУРА СОЗНАНИЯ // СТРАЖ ВРАТ",
+        title: "Критический Фактор Сознания",
+        body: `
+          <p>Защитная мембрана между твоей оперативной памятью (Сознанием, которое обрабатывает всего 7±2 единицы инфы) и хранилищем Подсознания (6 миллиардов операций в секунду).</p>
+          <p><strong>В чем ловушка:</strong> если внутри уже сидит вирус («Я неудачник», «Мир опасен»), Критический Фактор защищает этого демона как родную часть личности! Любые уговоры, тренинги и сила воли разбиваются об эту стену (Закон обратного усилия). Мы временно даем охраннику выходной через гипноз и удаляем вирус с правами Администратора.</p>
+        `
+      },
+      cowardice: {
+        tag: "// ГЛАВНЫЙ ВИРУС // ДЕЗЕРТИРСТВО",
+        title: "Малодушие и штат внутренних адвокатов",
+        body: `
+          <p>Слабость — это не диагноз и не «выгорание», это твое ежесекундное решение не влиять на мир. Малодушие заселяет в башку штат дорогих адвокатов, которые годами объясняют, почему ты терпишь ворующих партнеров, токсичную жену и боишься шагнуть в свой реальный масштаб.</p>
+        `
+      },
+      ise_root: {
+        tag: "// КОРИДОР ВРЕМЕНИ // ПЕРВОПРИЧИНА",
+        title: "ISE (Initial Sensitizing Event)",
+        body: `
+          <p><strong>Изначальное Сенсибилизирующее Событие</strong> — корень зла, самый первый момент шока, когда вирус вошел в систему в обход перегруженного Критического Фактора.</p>
+          <p>Для подсознания <strong>нет времени</strong>: травма 20-летней давности переживается твоей биологией как происходящая прямо сейчас. Пока ISE не вырезан на сессии — симптом и откаты по деньгам будут возвращаться снова и снова.</p>
+        `
+      },
+      vest_case: {
+        tag: "// РЕАЛЬНЫЙ РАЗБОР НА ССКЕ // $60K -> $100K",
+        title: "Кейс: Стоический Философ и РОП в вонючей жилетке",
+        body: `
+          <p>Пришел клиент, который «болтается» на $60,000 чистыми в месяц и не может пробить $100,000. За 30 минут на Стратегической сессии вскрываем его подсознание, а там сидят двое:</p>
+          <p>1. <strong>Философ-стоик</strong>, который благородно оправдывает любые кассовые провалы и потери.</p>
+          <p>2. <strong>Сущность в вонючей жилетке учителя истории</strong>, которая заставляла его нанимать в отдел продаж зеленых бездарей, чтобы «растить и учить их с нуля», вместо того чтобы нанять хищников и платить адекватным.</p>
+          <p>Два бомжатских убеждения («надо учить слабых» и «я сам разберусь») стоили человеку полмиллиона долларов недополученной прибыли в год.</p>
+        `
+      },
+      serial_b: {
+        tag: "// ДИАГНОЗ БИЗНЕСА // ПЕРЕЛИВАНИЕ КРОВИ",
+        title: "Серийное предпринимательство = Серийное блядство",
+        body: `
+          <p>Серийный предприниматель — как серийный убийца собственного масштаба. Вместо того чтобы бить в один рабочий бизнес до упора ($1M–$10M+), ты вынимаешь кровь, кэш и собственные мозги из первого успешного проекта и переливаешь их во второй-третий стартап, который еле дышит.</p>
+        `
+      },
+      diversion_wife: {
+        tag: "// ПОРТРЕТ АВАТАРА // ТЫЛОВОЙ САБОТАЖ",
+        title: "Домашняя диверсантка и бытовой ад",
+        body: `
+          <p>В бизнесе нет изолированных проблем — есть проблемы личного характера, которые вытекают в бизнес. Когда мужик боится возвращаться домой, потому что там сидит диверсантка, выносящая мозг, а развестись страшно из-за чувства вины («живем ради детей») — никакой консультант в пиджаке с MBA ему не поможет. Победить ебанутую жену и чувство вины может только экзорцист.</p>
+        `
+      },
+      admin_access: {
+        tag: "// 4 РЕШЕНИЯ РАЗУМА // ПРАВА ROOT",
+        title: "Почему срабатывает только 1-е решение из 4-х",
+        body: `
+          <p>Когда подсознанию дается команда удалить вирус, твой разум реагирует одним из 4 способов:</p>
+          <p>• «Надеюсь, сработает» = <strong>ПРОВАЛ</strong> (надежда содержит сомнение).<br>
+          • «Я попробую» = <strong>ПРОВАЛ</strong> (попытка программирует неудачу).<br>
+          • Нейтральность = <strong>БЛОКИРОВКА</strong>.<br>
+          • <strong>«Мне нравится, я уверен, это сработает»</strong> = 100% принятие новой реальности и выдача прав Администратора.</p>
+        `
+      },
+      retreat_gate: {
+        tag: "// ЗАКРЫТЫЙ ПРОТОКОЛ ТАРРАГОНА // МИНИ-КВЕСТ ДОПУСКА",
+        title: "Проверка допуска к Личному Ретриту в Испании",
+        body: `
+          <p>Ретрит не продается за деньги — это мое идеологическое волонтерство (ты покрываешь только косты виллы, трансфера и поваров). Ответь себе честно перед нажатием кнопки:</p>
+          <div class="p-3 bg-black/60 border border-purple-500/40 rounded mono text-xs space-y-2 mt-2">
+            <div>&gt; Зачем тебе смыслы и контакт с Творцом, если ты всё ещё ищешь «волшебную таблетку» вместо субъектности?</div>
+            <button onclick="unlockRetreat()" class="w-full py-2 bg-purple-400 text-black font-bold uppercase rounded mt-2">
+              Я ИДУ ЗА ИНСТРУКЦИЯМИ К ЖИЗНИ И ГОТОВ К ОТБОРУ
+            </button>
+          </div>
+        `
+      }
+    };
+
+    function openLore(key) {
+      const item = loreEntries[key];
+      if (!item) return;
+      document.getElementById('lore-tag').textContent = item.tag;
+      document.getElementById('lore-title').textContent = item.title;
+      document.getElementById('lore-body').innerHTML = item.body;
+      openModal('lore-modal');
+    }
+
+    function unlockRetreat() {
+      closeModal('lore-modal');
+      switchTab('tab-qual', document.querySelectorAll('.nav-tab')[2]);
+      document.getElementById('q-track').value = 'ЛИЧНЫЙ РЕТРИТ В ИСПАНИИ (По себестоимости // Волонтерство)';
+    }
+
+    // БАЗА ДАННЫХ THOUGHT CABINET (ШКАФ МЫСЛЕЙ ИЗ ВСЕХ ТВОИХ ФАЙЛОВ)
+    const cabinetData = {
+      th_state: {
+        tag: "// ФАЙЛ #01 // СОСТОЯНИЕ ПЕРВИЧНО, БАНКРОТСТВО — СЛЕДСТВИЕ",
+        title: "Кейс Zupar ($1M долгов) и Антон Синдикат: почему мужики ноют и обнимаются в сети",
+        content: `
+          <p>Посмотри на типичную переписку «бывших миллионеров» в соцсетях. Один пишет в 46 лет: <em>«Я банкрот! Долгов на $1 млн. Теряю бизнесы один за другим, мне стыдно смотреть в глаза, я всегда боялся этого — и в итоге это случилось»</em>.</p>
+          <p>Второй (Антон, 38 лет) отвечает ему: <em>«Очень знакомо! 4 раза был в таком. Главное — состояние! Обнял брат 🫂»</em>. А через пару дней этот же Антон воет на своей странице: <em>«Я сижу на полу у входной двери в слезах. Одиночество невыносимо. Первая мысль — срочно алкоголь, срочно наркотики, сбежать от себя. Я слабак — шепчет кто-то в голове»</em>.</p>
+          <p><strong>Что здесь произошло на уровне кода подсознания?</strong></p>
+          <p>1. Первый написал прямым текстом: <strong>«Я всегда боялся этого»</strong>. Для подсознания Воображение > Знания. Он изначально строил бизнес в состоянии страха, и его собственная система (6 млрд операций в секунду) добросовестно исполнила код банкротства, которого он боялся.</p>
+          <p>2. Второй 4 раза падал на дно и «привык к качелям», считая это нормой, пока демон одиночества и саморазрушения не прижал его к полу у входной двери. Здоровый человек с вычищенными багами в принципе не доводит систему до краха 4 раза подряд. Сопливые «обнимашки» в комментариях — это круговая порука жертв, которые жалеют своих демонов вместо того, чтобы их выжечь.</p>
+        `
+      },
+      th_serial: {
+        tag: "// ФАЙЛ #02 // ОПЕРАЦИОННАЯ ДИВЕРСИЯ",
+        title: "Серийное предпринимательство = Серийное убийство бизнеса",
+        content: `
+          <p>Второй бизнес почти никогда не бывает так же успешен, как первый. Почему? Потому что, становясь «серийным предпринимателем», ты буквально переливаешь кровь и вынимаешь внутренности из того бизнеса, который принес тебе миллион, чтобы пересадить их в сырой стартап.</p>
+          <p>Кроме того, каждый раз после отката или банкротства тебе приходится начинать в совершенно других рыночных обстоятельствах — старые связки («продавать носки на ВБ» или делать табуретки до ковида) больше не работают. Вместо того чтобы распылять фокус из скуки или лудомании, вычисти баги в голове и бей в один рычаг до упора.</p>
+        `
+      },
+      th_anatomy: {
+        tag: "// ФАЙЛ #03 // АНАТОМИЯ ОДЕРЖИМОСТИ",
+        title: "Два разума, 4 правила Зверя и почему Сила Воли всегда проигрывает",
+        content: `
+          <p><strong>Верхушка айсберга (Сознание):</strong> Оперативная память на 7±2 единицы. Отвечает за логику, аналитику и силу воли. Демоны здесь НЕ живут.</p>
+          <p><strong>Глубина (Подсознание):</strong> 6 миллиардов операций в секунду. Управляет биохимией, иммунитетом, привычками и хранит запись каждой секунды твоей жизни.</p>
+          <p><strong>4 Правила Зверя (Подсознания):</strong></p>
+          <p>1. <strong>Нет времени:</strong> Детская травма 30-летней давности фонит в кровь кортизолом так, будто тебя бьют прямо сейчас.<br>
+          2. <strong>Воображение > Фактов:</strong> Биология подчиняется образу в голове, а не отчетам аналитиков.<br>
+          3. <strong>Статус-кво:</strong> Знакомое болото с долгами для подсознания безопаснее неизвестного миллиона долларов.<br>
+          4. <strong>Закон обратного усилия:</strong> Чем сильнее ты пытаешься заставить себя «уснуть» или «не бояться» силой воли, тем жестче подсознание включает тревогу. Демона нельзя победить силой воли — его нужно перехитрить и перепрошить в обход Критического Фактора.</p>
+        `
+      },
+      th_exorcism: {
+        tag: "// ФАЙЛ #04 // МКБ-10 И ТРЕТЬЯ ДРЕВНЕЙШАЯ ПРОФЕССИЯ",
+        title: "Настоящая причина зависимостей: информационные вирусы и сущности",
+        content: `
+          <p>В международном классификаторе болезней ВОЗ (МКБ-10) официально зафиксирован недуг «транс и одержимость», при котором поступки человека управляются другой личностью, духом или «силой». Слова «зависимость» и «одержимость» однокоренные по смыслу не просто так.</p>
+          <p>Когда подсознание, которое 7 миллионов лет эволюции училось сохранять своего носителя живым и здоровым, вдруг толкает успешного мужика на кокаин, в петлю, под пули или в кредитное рабство — в системе поселился чужеродный информационный вирус (отколовшаяся часть личности / сущность / чужое чувство вины).</p>
+          <p>Пытаться бросить пить или саботировать бизнес на силе воли — мучение на годы. Но стоит на сессии выйти на прямой диалог с этой сущностью, провести регрессию к корню (ISE) и сжечь старые нейронные связки («Серая комната») — как тяга исчезает за один день.</p>
+        `
+      },
+      th_fears: {
+        tag: "// ФАЙЛ #05 // ЭКЗИСТЕНЦИАЛЬНОЕ ЯДРО",
+        title: "Страх одиночества, страх тюрьмы (99,5% приговоров) и страх сойти с ума",
+        content: `
+          <p><strong>1. Страх одиночества:</strong> У нищих неудачников всегда толпа собутыльников. Чем выше ты забираешься по интеллекту и деньгам, тем жестче фильтр и тем меньше людей, с которыми вообще о чем-то можно говорить. Миллионеры выдумывают себе дорогие хобби (аукционы, сигарные клубы) просто как фильтр от дурака, чтобы не выть по вечерам. Пока ты не примешь экзистенциальную автономность как базовый закон мира — бытовое одиночество будет жрать тебя заживо.</p>
+          <p><strong>2. Страх тюрьмы:</strong> На постсоветском пространстве оправдательных приговоров менее 0,5% (в РФ ~0,36%, в Казахстане 0,05%, в Украине меньше 0,8%). Если ты заработал деньги — папка с твоим именем уже лежит, вопрос только в номере статьи. Поэтому взрослые клиенты заходят ко мне на тариф с 100% NDA, а стратегическая задача — вовремя вытащить свои активы и тело в безопасную юрисдикцию.</p>
+          <p><strong>3. Страх потери рассудка:</strong> Главный актив бизнесмена — у него между ушей. Когда наступает бессонница, а реальность начинает трещать по швам, кажется, что кукуха едет окончательно. На деле же «безумие» — это годами делать одни и те же действия (тренинги, шлюхи, цацки) в надежде на другой результат.</p>
+        `
+      },
+      th_religion: {
+        tag: "// ФАЙЛ #06 // ХОББИ-УБИЙЦА #1",
+        title: "Религия: вера рабов против знания соратников Творца",
+        content: `
+          <p>Чем ближе к полтиннику, тем чаще богатые мужики пытаются «купить страховку» у деда на облаке, жертвуя сотни тысяч долларов на храмы и обрастая личными духовниками. Но сама концепция слепой веры подразумевает кидалово: когда можно проверить и знать наверняка — верить не нужно.</p>
+          <p>В 1988 году радиоуглеродный анализ Оксфорда, Аризоны и Цюриха доказал, что Туринская плащаница — подделка 1260–1390 годов. А канон Библии церковники перекраивали под нужды правителей с 360 по 1546 год (Тридентский собор), объявив неугодные Евангелия ересью, чтобы получить покорное стадо рабов.</p>
+          <p>Творец существует, но лучшие из людей осознают, что они дети и соучастники Творца, а не «рабы Божии». Молитва — это прямое действие по изменению реальности, а не выпрашивание подачек у штанины Отца.</p>
+        `
+      },
+      th_esoteric: {
+        tag: "// ФАЙЛ #07 // ХОББИ-УБИЙЦА #2",
+        title: "Шизотерика (Шизофрения + Эзотерика): прямой рейс на Бали и в галоперидол",
+        content: `
+          <p>Бедным шизотерика продает «карты желаний» и фильм «Секрет», а богатым — «бренность материального», випассану, стояние на гвоздях и поиск дзена на Бали (часто заходя с тыла через скучающую жену).</p>
+          <p>В чем медицинская опасность: шизотерика создает пропасть между субъективной фантазией («я повышаю вибрации») и объективной реальностью (кассовый разрыв). Когда расхождение становится критическим, подсознание запускает распад личности: сверхценные идеи $\\rightarrow$ паранойя $\\rightarrow$ БАР $\\rightarrow$ психиатрический стационар. А деньги миллионера лишь ускоряют этот маршрут в 10 раз.</p>
+        `
+      },
+      th_drugs: {
+        tag: "// ФАЙЛ #08 // ХОББИ-УБИЙЦА #3",
+        title: "Наркотики: ловушка элитарности и диверсия против элит",
+        content: `
+          <p>Богатые попадаются на наркотики через крючок «это не для черни — у меня самый чистый кокаин и лучшие врачи» и ошибку выжившего (глядя на рок-звезд). На деле же наркотик бьет по главному инстинкту миллионера — чувству собственного превосходства, забирая волю взамен на химический суррогат.</p>
+        `
+      },
+      th_alcohol: {
+        tag: "// ФАЙЛ #09 // ХОББИ-УБИЙЦА #4",
+        title: "Алкоголь: развенчанный французский парадокс и пайка античных рабов",
+        content: `
+          <p>В августе 2018 года масштабное 25-летнее исследование в журнале <em>The Lancet</em> окончательно похоронило миф о «пользе бокала сухого красного вина» (оказалось, дело было в оливковом масле, а винный бум проплатили лоббисты). Нельзя быть «немножко алкоголиком» по пятницам — тут работает бинарная логика (1 или 0).</p>
+          <p>Исторически алкоголь — это буквально напиток рабов: в Спарте и Риме рабам принудительно вливали до 150 литров вина в год, чтобы парализовать их волю к бунту, тогда как свободным воинам спиртное было строжайше запрещено.</p>
+        `
+      },
+      th_extreme: {
+        tag: "// ФАЙЛ #10 // ХОББИ-УБИЙЦА #5",
+        title: "Экстремальные увлечения: когда подсознание пытается тебя убить",
+        content: `
+          <p>В МКБ-10 и DSM-5 не существует никакой «адреналиновой зависимости». Инстинкт самосохранения — базовый закон выживания вида. Когда человек добровольно лезет на скалу без страховки (как Алекс Хоннольд на Эль-Капитан) или валит 250 км/ч на байке по встречке — это не жажда жизни. Это сбой травмированного подсознания, которое активировало скрытую программу самоуничтожения из-за потери смысла.</p>
+        `
+      },
+      th_sport: {
+        tag: "// ФАЙЛ #11 // ХОББИ-УБИЙЦА #6",
+        title: "Спорт на убой vs Физкультура",
+        content: `
+          <p>Двадцать минут кардио и прогулки в лесу дают чистый ресурс. Но когда бизнесмен начинает упарываться в качалке с фармой ради бесполезной мышечной массы или готовиться к Ironman по 4 часа в сутки — он просто зарабатывает грыжи, протрузии и посаженное сердце, убегая от реальных управленческих решений.</p>
+        `
+      },
+      th_philo: {
+        tag: "// ФАЙЛ #12 // ХОББИ-УБИЙЦА #7",
+        title: "Пустая философия: неразрезанные страницы Сартра",
+        content: `
+          <p>Когда Хайдеггер подарил Гадамеру 900-страничный том Сартра «Бытие и ничто» и горячо рекомендовал его, оказалось, что в книге разрезаны только первые 40 страниц. В философию уходят те, кто слишком умен для церкви и тарологов, но потерял голод и либидо к жизни. Мыслить — энергозатратный труд; гоняя в голове мертвые концепции Канта или Диогена из бочки, ты сливаешь вычислительную мощность мозга в унитаз.</p>
+        `
+      },
+      th_sex: {
+        tag: "// ФАЙЛ #13 // ХОББИ-УБИЙЦА #8",
+        title: "Секс-эксперименты: обслуживание детских психотравм за большие деньги",
+        content: `
+          <p>Большие деньги позволяют по щелчку пальцев купить любую фантазию. Но на практике миллионер начинает бесконечно реконструировать свои детские травмы: либо уходит в мазохизм и подчинение («накажи меня»), либо в садизм и месть женщинам. Хвост начинает вертеть собакой, убивая способность к нормальной близости и доводя до шантажа или тюрьмы.</p>
+        `
+      },
+      th_house: {
+        tag: "// ФАЙЛ #14 // ХОББИ-УБИЙЦА #9",
+        title: "Стройка дома и бетонные инвестиции на 15 лет",
+        content: `
+          <p>Люди берут миллион живых заработанных долларов, которые можно прокрутить с высокой маржой или жить на вилле у моря, закапывают их в бетон, надевают резиновые сапоги и годами ездят после работы контролировать прорабов. В итоге деньги и мозг вынуты из бизнеса, компания рушится в кризис, а владелец остается банкротом с памятником собственной лудомании — холодным недостроем.</p>
+        `
+      }
+    };
+
+    function selectThought(key, btnEl) {
+      const item = cabinetData[key];
+      if (!item) return;
+      document.querySelectorAll('.thought-btn').forEach(b => b.classList.remove('active'));
+      if (btnEl) btnEl.classList.add('active');
+      document.getElementById('cab-tag').textContent = item.tag;
+      document.getElementById('cab-title').textContent = item.title;
+      document.getElementById('cab-body').innerHTML = item.content;
+    }
+    // Инициализируем первую мысль в шкафу
+    selectThought('th_state', document.querySelector('.thought-btn'));
+
+    // ОТПРАВКА KIM-АНКЕТЫ В TELEGRAM
+    function submitKimForm() {
+      const name = document.getElementById('q-name').value.trim() || 'Не указано';
+      const pointA = document.getElementById('q-point-a').value.trim() || 'Не указано';
+      const pointB = document.getElementById('q-point-b').value.trim() || 'Не указано';
+      const track = document.getElementById('q-track').value;
+      const problem = document.getElementById('q-problem').value.trim() || 'Не указано';
+      const decision = document.getElementById('q-decision').value;
+
+      const text = encodeURIComponent(
+        `[KIM-1999 TERMINAL // ЗАЯВКА НА РАУНД 1 (КВАЛ 10 МИН)]\n\n` +
+        `• Кто: ${name}\n` +
+        `• Точка А: ${pointA}\n` +
+        `• Цель (Точка Б): ${pointB}\n` +
+        `• Трек: ${track}\n` +
+        `• Главный вирус/стопор: ${problem}\n` +
+        `• Решение разума: ${decision}\n\n` +
+        `Готов к 10-минутному квалификационному звонку.`
+      );
+      window.open(`https://t.me/alexander_bespalikov?text=${text}`, '_blank');
+    }
+
+    // МОДАЛКИ И ЗАКРЫТИЕ ТАПОМ ВНЕ ОКНА
+    function openModal(id) {
+      document.getElementById(id).classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+    function closeOnBackdrop(event, id) {
+      if (event.target.id === id) closeModal(id);
+    }
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') ['lore-modal', 'img-modal'].forEach(closeModal);
+    });
+    function openImageModal(src) {
+      document.getElementById('img-modal-src').src = src;
+      openModal('img-modal');
+    }
+
+    // ВЫБОР ТАРИФА НА ГЛАВНОЙ
+    let currentTier = 'ЭКЗОРЦИЗМ МАСШТАБА // ПРОБОЙ СОТКИ ($10,000 + 10%)';
+
+    function updateTelegramLink() {
+      const btn = document.getElementById('tg-btn');
+      const message = encodeURIComponent(`Привет, Александр. Прошел терминал.\n\nВыбранный трек: ${currentTier}\nВсе 4 пункта протокола подтверждаю. Готов к Раунду 1 (10-минутный Квал-созвон).`);
+      btn.href = `https://t.me/alexander_bespalikov?text=${message}`;
+    }
+
+    function selectTier(el, title) {
+      document.querySelectorAll('.tier-card').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      currentTier = title;
+      document.getElementById('selected-tier-badge').textContent = 'ВЫБРАНО: ' + title;
+      updateTelegramLink();
+    }
+
+    const checks = document.querySelectorAll('.check-item');
+    const btn = document.getElementById('tg-btn');
+    checks.forEach(c => c.addEventListener('change', () => {
+      const allChecked = Array.from(checks).every(i => i.checked);
+      if (allChecked) {
+        updateTelegramLink();
+        btn.classList.remove('bg-slate-900/90', 'text-slate-500', 'pointer-events-none', 'border-white/10');
+        btn.classList.add('bg-[#66c0f4]', 'text-black', 'hover:bg-sky-300', 'border-[#66c0f4]', 'shadow-lg');
+        btn.textContent = '>>> ЗАПИСАТЬСЯ НА РАУНД 1 (10 МИН КВАЛ) В TELEGRAM <<<';
+      } else {
+        btn.classList.add('bg-slate-900/90', 'text-slate-500', 'pointer-events-none', 'border-white/10');
+        btn.classList.remove('bg-[#66c0f4]', 'text-black', 'hover:bg-sky-300', 'border-[#66c0f4]', 'shadow-lg');
+        btn.textContent = '[ ОТМЕТЬ 4 ПУНКТА ВЫШЕ ДЛЯ ЗАПИСИ НА РАУНД 1 В TELEGRAM ]';
+      }
+    }));
+
+    updateTelegramLink();
+
+    // КОСМИЧЕСКИЙ ФОН С СОЗВЕЗДИЯМИ
+    const canvas = document.getElementById('cosmos-canvas');
+    const ctx = canvas.getContext('2d');
+    let width, height, stars = [], meteors = [], mouse = { x: null, y: null };
+
+    function resize() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+    window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+
+    const STAR_COUNT = Math.min(95, Math.floor((window.innerWidth * window.innerHeight) / 14000));
+    for (let i = 0; i < STAR_COUNT; i++) {
+      stars.push({
+        x: Math.random() * width, y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.28, vy: (Math.random() - 0.5) * 0.28,
+        radius: Math.random() * 1.5 + 0.5, alpha: Math.random() * 0.6 + 0.3
+      });
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, width, height);
+      for (let i = 0; i < stars.length; i++) {
+        let s = stars[i];
+        s.x += s.vx; s.y += s.vy;
+        if (s.x < 0 || s.x > width) s.vx *= -1;
+        if (s.y < 0 || s.y > height) s.vy *= -1;
+
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(199, 213, 224, ${s.alpha})`;
+        ctx.fill();
+
+        for (let j = i + 1; j < stars.length; j++) {
+          let s2 = stars[j];
+          let dist = Math.hypot(s.x - s2.x, s.y - s2.y);
+          if (dist < 120) {
+            ctx.beginPath();
+            ctx.moveTo(s.x, s.y); ctx.lineTo(s2.x, s2.y);
+            ctx.strokeStyle = `rgba(102, 192, 244, ${(1 - dist / 120) * 0.14})`;
+            ctx.lineWidth = 0.6;
+            ctx.stroke();
+          }
+        }
+        if (mouse.x && mouse.y) {
+          let mDist = Math.hypot(s.x - mouse.x, s.y - mouse.y);
+          if (mDist < 150) {
+            ctx.beginPath();
+            ctx.moveTo(s.x, s.y); ctx.lineTo(mouse.x, mouse.y);
+            ctx.strokeStyle = `rgba(251, 191, 36, ${(1 - mDist / 150) * 0.35})`;
+            ctx.lineWidth = 0.8;
+            ctx.stroke();
+          }
+        }
+      }
+      if (Math.random() < 0.012 && meteors.length < 2) {
+        meteors.push({ x: Math.random() * width, y: 0, len: 65, speed: 9, alpha: 1 });
+      }
+      for (let i = meteors.length - 1; i >= 0; i--) {
+        let m = meteors[i];
+        ctx.beginPath();
+        ctx.moveTo(m.x, m.y); ctx.lineTo(m.x - m.len, m.y + m.len);
+        ctx.strokeStyle = `rgba(251, 191, 36, ${m.alpha})`;
+        ctx.lineWidth = 1.4;
+        ctx.stroke();
+        m.x += m.speed; m.y += m.speed; m.alpha -= 0.025;
+        if (m.alpha <= 0) meteors.splice(i, 1);
+      }
+      requestAnimationFrame(animate);
+    }
+    animate();
+  </script>
+</body>
+</html>
